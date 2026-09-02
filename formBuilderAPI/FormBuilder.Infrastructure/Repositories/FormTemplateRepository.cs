@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FormBuilder.Application.DTOs;
 using FormBuilder.Application.Interfaces;
 using FormBuilder.Infrastructure.Data;
@@ -27,7 +28,8 @@ public class FormTemplateRepository : IFormTemplateRepository
                 Label = f.Label,
                 Type = f.Type,
                 Order = f.Order,
-                Required = f.Required
+                Required = f.Required,
+                OptionsJson = SerializeOptions(f.Options)
             }).ToList(),
             ApprovalSteps = dto.ApprovalSteps.Select(s => new ApprovalStep
             {
@@ -81,7 +83,8 @@ public class FormTemplateRepository : IFormTemplateRepository
                 Label = f.Label,
                 Type = f.Type,
                 Order = f.Order,
-                Required = f.Required
+                Required = f.Required,
+                Options = DeserializeOptions(f.OptionsJson)
             }).ToList(),
         ApprovalSteps = formTemplate.ApprovalSteps
             .OrderBy(s => s.Order)
@@ -94,4 +97,13 @@ public class FormTemplateRepository : IFormTemplateRepository
                 ActionType = s.ActionType
             }).ToList()
     };
+
+    private static string? SerializeOptions(List<string>? options)
+    {
+        var cleaned = options?.Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
+        return cleaned is { Count: > 0 } ? JsonSerializer.Serialize(cleaned) : null;
+    }
+
+    private static List<string>? DeserializeOptions(string? optionsJson) =>
+        string.IsNullOrEmpty(optionsJson) ? null : JsonSerializer.Deserialize<List<string>>(optionsJson);
 }

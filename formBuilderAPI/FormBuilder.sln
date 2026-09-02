@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.37614.0 d17.14
@@ -8,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder.Application", "FormBuilder.Application\FormBuilder.Application.csproj", "{839F767C-854F-40ED-84C3-9E9293E09F9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder.Infrastructure", "FormBuilder.Infrastructure\FormBuilder.Infrastructure.csproj", "{494D06FB-4870-487E-9015-17914A3D105E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder.Application.Tests", "FormBuilder.Application.Tests\FormBuilder.Application.Tests.csproj", "{19F1F5CC-836F-4100-A883-0E2E88B7D5B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{494D06FB-4870-487E-9015-17914A3D105E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{494D06FB-4870-487E-9015-17914A3D105E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{494D06FB-4870-487E-9015-17914A3D105E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19F1F5CC-836F-4100-A883-0E2E88B7D5B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19F1F5CC-836F-4100-A883-0E2E88B7D5B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19F1F5CC-836F-4100-A883-0E2E88B7D5B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19F1F5CC-836F-4100-A883-0E2E88B7D5B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,4 +11,5 @@ public class FormField
     public required string Type { get; set; }
     public int Order { get; set; }
     public bool Required { get; set; }
+    public string? OptionsJson { get; set; }
 }

@@ -12,13 +12,21 @@ import {
 } from '@angular/forms';
 
 import { FormsService } from '../../../services/forms.service';
-import { ActionType, CreateFormRequest, FieldType } from '../../../models/form.models';
+import {
+  ActionType,
+  CreateFormRequest,
+  FIELD_TYPE_DEFINITIONS,
+  FieldType,
+  fieldTypeHasOptions,
+  fieldTypeLabel
+} from '../../../models/form.models';
 
 type FieldGroup = FormGroup<{
   label: FormControl<string>;
   type: FormControl<FieldType>;
   required: FormControl<boolean>;
   order: FormControl<number>;
+  options: FormArray<FormControl<string>>;
 }>;
 
 type ApprovalStepGroup = FormGroup<{
@@ -35,6 +43,15 @@ function requiredNotBlank(control: AbstractControl<string>): ValidationErrors | 
   return control.value && control.value.trim().length > 0 ? null : { required: true };
 }
 
+function optionsRequiredForChoiceTypes(control: AbstractControl): ValidationErrors | null {
+  const group = control as FieldGroup;
+  if (!fieldTypeHasOptions(group.controls.type.value)) {
+    return null;
+  }
+  const hasNonEmptyOption = group.controls.options.controls.some((c) => c.value.trim().length > 0);
+  return hasNonEmptyOption ? null : { optionsRequired: true };
+}
+
 @Component({
   selector: 'app-create-form',
   standalone: true,
@@ -47,6 +64,7 @@ export class CreateFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly formsService = inject(FormsService);
 
+  protected readonly fieldTypes = FIELD_TYPE_DEFINITIONS;
   protected readonly actionTypes = ACTION_TYPES;
 
   protected readonly isSaving = signal(false);
@@ -69,17 +87,45 @@ export class CreateFormComponent {
     return this.form.controls.approvalSteps;
   }
 
-  addTextField(): void {
-    this.addField('text');
+  typeLabel(type: FieldType): string {
+    return fieldTypeLabel(type);
   }
 
-  addDateField(): void {
-    this.addField('date');
+  fieldHasOptions(field: FieldGroup): boolean {
+    return fieldTypeHasOptions(field.controls.type.value);
+  }
+
+  addField(type: FieldType): void {
+    const group: FieldGroup = this.fb.group(
+      {
+        label: this.fb.control('', [Validators.required, Validators.maxLength(200)]),
+        type: this.fb.control<FieldType>(type),
+        required: this.fb.control(false),
+        order: this.fb.control(this.fields.length + 1),
+        options: this.fb.array<string>([])
+      },
+      { validators: optionsRequiredForChoiceTypes }
+    );
+
+    if (fieldTypeHasOptions(type)) {
+      group.controls.options.push(this.fb.control(''));
+      group.controls.options.push(this.fb.control(''));
+    }
+
+    this.fields.push(group);
   }
 
   removeField(index: number): void {
     this.fields.removeAt(index);
     this.updateOrder(this.fields);
+  }
+
+  addOption(fieldIndex: number): void {
+    this.fields.at(fieldIndex).controls.options.push(this.fb.control(''));
+  }
+
+  removeOption(fieldIndex: number, optionIndex: number): void {
+    this.fields.at(fieldIndex).controls.options.removeAt(optionIndex);
   }
 
   addApprovalStep(): void {
@@ -126,16 +172,6 @@ export class CreateFormComponent {
     });
   }
 
-  private addField(type: FieldType): void {
-    const group: FieldGroup = this.fb.group({
-      label: this.fb.control('', [Validators.required, Validators.maxLength(200)]),
-      type: this.fb.control<FieldType>(type),
-      required: this.fb.control(false),
-      order: this.fb.control(this.fields.length + 1)
-    });
-    this.fields.push(group);
-  }
-
   private updateOrder(array: FormArray<FieldGroup> | FormArray<ApprovalStepGroup>): void {
     array.controls.forEach((control, index) => control.controls.order.setValue(index + 1));
   }
@@ -144,12 +180,20 @@ export class CreateFormComponent {
     return {
       name: this.form.controls.name.value.trim(),
       createdBy: this.form.controls.createdBy.value.trim() || DEFAULT_CREATED_BY,
-      fields: this.fields.controls.map((group) => ({
-        label: group.controls.label.value.trim(),
-        type: group.controls.type.value,
-        order: group.controls.order.value,
-        required: group.controls.required.value
-      })),
+      fields: this.fields.controls.map((group) => {
+        const type = group.controls.type.value;
+        const options = fieldTypeHasOptions(type)
+          ? group.controls.options.controls.map((c) => c.value.trim()).filter((v) => v.length > 0)
+          : undefined;
+
+        return {
+          label: group.controls.label.value.trim(),
+          type,
+          order: group.controls.order.value,
+          required: group.controls.required.value,
+          ...(options ? { options } : {})
+        };
+      }),
       approvalSteps: this.approvalSteps.controls.map((group) => ({
         name: group.controls.name.value.trim(),
         approver: group.controls.approver.value.trim(),

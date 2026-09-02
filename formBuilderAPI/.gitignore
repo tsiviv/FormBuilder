@@ -62,6 +62,9 @@ PublishScripts/
 *.db-shm
 *.db-wal
 
+# Runtime logs
+*.log
+
 # OS files
 .DS_Store
 Thumbs.db

@@ -7,4 +7,5 @@ public class FormFieldDto
     public string Type { get; set; } = string.Empty;
     public int Order { get; set; }
     public bool Required { get; set; }
+    public List<string>? Options { get; set; }
 }

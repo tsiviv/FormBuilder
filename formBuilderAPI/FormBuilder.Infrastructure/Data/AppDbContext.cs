@@ -35,6 +35,7 @@ public class AppDbContext : DbContext
         {
             entity.Property(f => f.Label).IsRequired().HasMaxLength(200);
             entity.Property(f => f.Type).IsRequired().HasMaxLength(50);
+            entity.Property(f => f.OptionsJson).HasMaxLength(2000);
         });
 
         modelBuilder.Entity<ApprovalStep>(entity =>
