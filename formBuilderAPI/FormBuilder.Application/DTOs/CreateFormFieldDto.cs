@@ -15,6 +15,7 @@ public class CreateFormFieldDto : IValidatableObject
 
     public bool Required { get; set; }
 
+    [MaxLength(50, ErrorMessage = "A field cannot have more than 50 options")]
     public List<string>? Options { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -28,6 +29,13 @@ public class CreateFormFieldDto : IValidatableObject
                     "At least one option is required for select and radio fields",
                     new[] { nameof(Options) });
             }
+        }
+
+        if (Options is { Count: > 0 } && Options.Any(o => o is { Length: > 200 }))
+        {
+            yield return new ValidationResult(
+                "Each option must be at most 200 characters",
+                new[] { nameof(Options) });
         }
     }
 }

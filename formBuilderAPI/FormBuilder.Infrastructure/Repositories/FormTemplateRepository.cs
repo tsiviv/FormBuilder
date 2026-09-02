@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FormBuilder.Application;
 using FormBuilder.Application.DTOs;
 using FormBuilder.Application.Interfaces;
 using FormBuilder.Infrastructure.Data;
@@ -29,7 +30,7 @@ public class FormTemplateRepository : IFormTemplateRepository
                 Type = f.Type,
                 Order = f.Order,
                 Required = f.Required,
-                OptionsJson = SerializeOptions(f.Options)
+                OptionsJson = FieldTypes.RequiresOptions(f.Type) ? SerializeOptions(f.Options) : null
             }).ToList(),
             ApprovalSteps = dto.ApprovalSteps.Select(s => new ApprovalStep
             {
