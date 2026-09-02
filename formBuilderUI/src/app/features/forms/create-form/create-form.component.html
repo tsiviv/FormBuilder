@@ -1,0 +1,138 @@
+<div class="page" dir="rtl" [formGroup]="form">
+  <h1>יצירת טופס חדש</h1>
+
+  @if (successMessage(); as message) {
+    <p class="banner banner--success" role="status">{{ message }}</p>
+  }
+  @if (errorMessage(); as message) {
+    <p class="banner banner--error" role="alert">{{ message }}</p>
+  }
+
+  <section class="section">
+    <h2>פרטי טופס</h2>
+
+    <div class="field-row">
+      <label for="form-name">שם הטופס <span class="required-mark">*</span></label>
+      <input
+        id="form-name"
+        type="text"
+        formControlName="name"
+        [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched"
+      />
+      @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+        <span class="error-text">שם הטופס הוא שדה חובה</span>
+      }
+      @if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
+        <span class="error-text">שם הטופס ארוך מדי (עד 200 תווים)</span>
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>בונה הטפסים</h2>
+
+    <div class="actions">
+      <button type="button" (click)="addTextField()">+ הוסף שדה טקסט</button>
+      <button type="button" (click)="addDateField()">+ הוסף שדה תאריך</button>
+    </div>
+
+    @if (submitted() && fields.hasError('required')) {
+      <span class="error-text">יש להוסיף לפחות שדה אחד</span>
+    }
+
+    <div class="item-list" formArrayName="fields">
+      @for (field of fields.controls; track field; let i = $index) {
+        <div class="item" [formGroupName]="i">
+          <h3>שדה {{ i + 1 }}</h3>
+
+          <div class="field-row">
+            <label [for]="'field-label-' + i">תווית <span class="required-mark">*</span></label>
+            <input
+              [id]="'field-label-' + i"
+              type="text"
+              formControlName="label"
+              [attr.aria-invalid]="field.controls.label.invalid && field.controls.label.touched"
+            />
+            @if (field.controls.label.touched && field.controls.label.hasError('required')) {
+              <span class="error-text">תווית השדה היא חובה</span>
+            }
+          </div>
+
+          <div class="field-row field-row--inline">
+            <span>סוג: {{ field.controls.type.value === 'text' ? 'טקסט' : 'תאריך' }}</span>
+          </div>
+
+          <div class="field-row field-row--inline">
+            <label [for]="'field-required-' + i">חובה</label>
+            <input [id]="'field-required-' + i" type="checkbox" formControlName="required" />
+          </div>
+
+          <button type="button" class="danger" (click)="removeField(i)">מחק</button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>מסלול אישורים</h2>
+
+    <div class="actions">
+      <button type="button" (click)="addApprovalStep()">+ הוסף שלב</button>
+    </div>
+
+    @if (submitted() && approvalSteps.hasError('required')) {
+      <span class="error-text">יש להוסיף לפחות שלב אישור אחד</span>
+    }
+
+    <div class="item-list" formArrayName="approvalSteps">
+      @for (step of approvalSteps.controls; track step; let i = $index) {
+        <div class="item" [formGroupName]="i">
+          <h3>שלב {{ i + 1 }}</h3>
+
+          <div class="field-row">
+            <label [for]="'step-name-' + i">שם <span class="required-mark">*</span></label>
+            <input
+              [id]="'step-name-' + i"
+              type="text"
+              formControlName="name"
+              [attr.aria-invalid]="step.controls.name.invalid && step.controls.name.touched"
+            />
+            @if (step.controls.name.touched && step.controls.name.hasError('required')) {
+              <span class="error-text">שם השלב הוא חובה</span>
+            }
+          </div>
+
+          <div class="field-row">
+            <label [for]="'step-approver-' + i">מאשר <span class="required-mark">*</span></label>
+            <input
+              [id]="'step-approver-' + i"
+              type="text"
+              formControlName="approver"
+              [attr.aria-invalid]="step.controls.approver.invalid && step.controls.approver.touched"
+            />
+            @if (step.controls.approver.touched && step.controls.approver.hasError('required')) {
+              <span class="error-text">שדה המאשר הוא חובה</span>
+            }
+          </div>
+
+          <div class="field-row">
+            <label [for]="'step-action-' + i">פעולה <span class="required-mark">*</span></label>
+            <select [id]="'step-action-' + i" formControlName="actionType">
+              @for (action of actionTypes; track action) {
+                <option [value]="action">{{ action }}</option>
+              }
+            </select>
+          </div>
+
+          <button type="button" class="danger" (click)="removeApprovalStep(i)">מחק</button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <div class="save-row">
+    <button type="button" [disabled]="isSaving()" (click)="save()">
+      {{ isSaving() ? 'שומר...' : 'שמור טופס' }}
+    </button>
+  </div>
+</div>

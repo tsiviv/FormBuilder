@@ -1,6 +1,31 @@
 @FormBuilder.Api_HostAddress = http://localhost:5067
 
-GET {{FormBuilder.Api_HostAddress}}/weatherforecast/
+### Create a form template
+POST {{FormBuilder.Api_HostAddress}}/api/forms
+Content-Type: application/json
+
+{
+  "name": "Leave Request",
+  "createdBy": "admin",
+  "fields": [
+    { "label": "Full Name", "type": "text", "order": 1, "required": true },
+    { "label": "Start Date", "type": "date", "order": 2, "required": true }
+  ],
+  "approvalSteps": [
+    { "name": "Manager Review", "order": 1, "approver": "manager1", "actionType": "ApproveReject" }
+  ]
+}
+
+###
+
+### Get all form templates
+GET {{FormBuilder.Api_HostAddress}}/api/forms
+Accept: application/json
+
+###
+
+### Get a form template by id
+GET {{FormBuilder.Api_HostAddress}}/api/forms/1
 Accept: application/json
 
 ###
